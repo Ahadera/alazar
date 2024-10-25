@@ -107,3 +107,4 @@ if st.sidebar.button("Fetch Data and Analyze"):
                         st.write(f"No relevant news articles found for {stock} on {date.strftime('%Y-%m-%d')}.")
     else:
         st.warning("No valid stock data available for analysis.")
+
