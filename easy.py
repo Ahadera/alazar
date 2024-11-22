@@ -25,7 +25,9 @@ class Library_Master_System:
             st.error(f"An error occurred while reading the file: {e}")
 
     def Booking_showing(self):
-        st.write("### Collection of Books in the Library")
+        if not self.books_dict:
+            st.write("The Library's Collection has no books at the current moment")
+        st.write("###______ Collection of Books in the Library__________##")
         for key, value in self.books_dict.items():
             st.write(f"{key}: {value['book_title']} - [{value['Status']}]")
 
@@ -53,16 +55,17 @@ class adding_books_to_the_collection(Library_Master_System):
         if len(New_books) > 25:
             st.warning("The book title is too long. Please contact a librarian for further assistance.")
             return
+         
         try:
-            with open(self.Collection_of_Books, 'a') as Books:
-                Books.writelines(f"{New_books}\n")
-            book_id = str(int(max(self.books_dict.keys(), key=int)) + 1)
-            self.books_dict[book_id] = {
-                "book_title": New_books,
-                "Lender_name": "",
-                "Book_checked_out": "",
-                "Status": "Available"
-            }
+            with open(self.Collection_of_Books, 'r') as Books:
+                content = Books.readlines()
+            for Books_Id, line in enumerate(content, start=1):
+                self.books_dict[str(Books_Id)] = {
+                    "book_title": line.strip(),
+                    "Lender_name": "",
+                    "Book_checked_out": "",
+                    "Status": "Available"
+                }
             st.success(f"The book '{New_books}' has been added to the library collection.")
         except Exception as e:
             st.error(f"Error adding book: {e}")
@@ -84,9 +87,9 @@ class returning_book_back_to_the_collection(Library_Master_System):
 # Streamlit App
 def main():
     st.title("Library Management System")
-    library_file_path = "Library Collection.txt"
+    library_connection_path = r"C:\Users\Alazar_Hadera\Desktop\Library Collection.txt"
     if "Library_system" not in st.session_state:
-        st.session_state.Library_system = Library_Master_System(library_file_path, "Python's Library")
+        st.session_state.Library_system = Library_Master_System(library_connection_path, "Python's Library")
 
     menu = ["Display Books", "Issue Book", "Add Book", "Return Book"]
     choice = st.sidebar.selectbox("Menu", menu)
@@ -101,21 +104,22 @@ def main():
         lender_name = st.text_input("Enter Your Name")
         if st.button("Issue"):
             if book_id and lender_name:
-                Checking_books_out(library_file_path, "Python's Library").Book_check_out(book_id, lender_name)
+                Checking_books_out(library_connection_path, "Python's Library").Book_check_out(book_id, lender_name)
 
     elif choice == "Add Book":
         st.header("Add a Book")
         new_book = st.text_input("Enter New Book Title")
         if st.button("Add Book"):
             if new_book:
-                adding_books_to_the_collection(library_file_path, "Python's Library").Adding_Books_to_the_system(new_book)
+                adding_books_to_the_collection(library_connection_path, "Python's Library").Adding_Books_to_the_system(new_book)
 
     elif choice == "Return Book":
         st.header("Return a Book")
         book_id = st.text_input("Enter Book ID")
         if st.button("Return"):
             if book_id:
-                returning_book_back_to_the_collection(library_file_path, "Python's Library").returning_book(book_id)
+                returning_book_back_to_the_collection(library_connection_path, "Python's Library").returning_book(book_id)
 
 if __name__ == "__main__":
     main()
+
