@@ -1,6 +1,5 @@
 import streamlit as st
 
-# LibraryMasterSystem class
 class LibraryMasterSystem:
     def __init__(self, collection_of_books, library_name):
         self.collection_of_books = collection_of_books
@@ -25,15 +24,34 @@ class LibraryMasterSystem:
             st.warning("Book file not found. Starting with an empty library.")
 
     def display_books(self):
-        for book_id, details in self.books_dict.items():
-            st.write(f"ID: {book_id}, Title: {details['book_title']}, Status: {details['status']}")
+        st.subheader("Books Available in the Library:")
+        # Separate available and checked-out books
+        available_books = {book_id: details for book_id, details in self.books_dict.items() if details["status"] == "Available"}
+        checked_out_books = {book_id: details for book_id, details in self.books_dict.items() if details["status"] == "Checked Out"}
 
-# BookManager class
+        if available_books:
+            st.write("**Available Books:**")
+            for book_id, details in available_books.items():
+                st.write(f"ID: {book_id}, Title: {details['book_title']}")
+        else:
+            st.write("No books available currently.")
+
+        if checked_out_books:
+            st.write("**Checked Out Books:**")
+            for book_id, details in checked_out_books.items():
+                st.write(f"ID: {book_id}, Title: {details['book_title']}, Lender: {details['lender_name']}")
+        else:
+            st.write("No books are checked out currently.")
+
 class BookManager:
     def __init__(self, library_system):
         self.library_system = library_system
 
     def check_out_book(self, book_id, lender_name):
+        if not book_id.strip() or not lender_name.strip():
+            st.warning("Book ID and Lender Name cannot be empty.")
+            return
+
         if book_id not in self.library_system.books_dict:
             st.warning("This book ID does not exist.")
             return
@@ -48,6 +66,10 @@ class BookManager:
         st.success("Book has been checked out successfully.")
 
     def return_book(self, book_id):
+        if not book_id.strip():
+            st.warning("Book ID cannot be empty.")
+            return
+
         if book_id not in self.library_system.books_dict:
             st.warning("This book ID does not exist.")
             return
@@ -55,7 +77,10 @@ class BookManager:
         if self.library_system.books_dict[book_id]["status"] == "Available":
             st.warning("This book is already available.")
             return
+
+        # Reset book details for return
         self.library_system.books_dict[book_id]["status"] = "Available"
+        self.library_system.books_dict[book_id]["lender_name"] = ""
         st.success("Book has been returned successfully.")
 
     def add_book(self, book_title):
@@ -70,6 +95,9 @@ class BookManager:
             "status": "Available"
         }
         self.library_system.books_id += 1
+        # Add book to file for persistence
+        with open(self.library_system.collection_of_books, 'a') as file:
+            file.write(book_title + "\n")
         st.success("Book has been added successfully.")
 
 # Main function for Streamlit application
