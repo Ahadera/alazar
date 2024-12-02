@@ -1,30 +1,240 @@
-The Great Gatsby by F. Scott Fitzgerald (Damage Fee: $30)
-To Kill a Mockingbird by Harper Lee (Damage Fee: $25)
-1984 by George Orwell (Damage Fee: $20)
-The Ballad of Black Tom by Victor LaValle (Damage Fee: $45)
-The Count of Monte Cristo by Alexandre Dumas (Damage Fee: $75)
-Pride and Prejudice by Jane Austen (Damage Fee: $35)
-Moby Dick by Herman Melville (Damage Fee: $40)
-The Catcher in the Rye by J.D. Salinger (Damage Fee: $28)
-Brave New World by Aldous Huxley (Damage Fee: $30)
-The Hobbit by J.R.R. Tolkien (Damage Fee: $50)
-War and Peace by Leo Tolstoy (Damage Fee: $60)
-Crime and Punishment by Fyodor Dostoevsky (Damage Fee: $45)
-The Odyssey by Homer (Damage Fee: $38)
-Frankenstein by Mary Shelley (Damage Fee: $32)
-Jane Eyre by Charlotte Brontë (Damage Fee: $34)
-The Iliad by Homer (Damage Fee: $40)
-Wuthering Heights by Emily Brontë (Damage Fee: $28)
-Dracula by Bram Stoker (Damage Fee: $37)
-Les Misérables by Victor Hugo (Damage Fee: $55)
-A Tale of Two Cities by Charles Dickens (Damage Fee: $32)
-The Picture of Dorian Gray by Oscar Wilde (Damage Fee: $25)
-Heart of Darkness by Joseph Conrad (Damage Fee: $30)
-The Brothers Karamazov by Fyodor Dostoevsky (Damage Fee: $48)
-Don Quixote by Miguel de Cervantes (Damage Fee: $50)
-The Divine Comedy by Dante Alighieri (Damage Fee: $60)
-Ulysses by James Joyce (Damage Fee: $42)
-Madame Bovary by Gustave Flaubert (Damage Fee: $27)
-The Sun Also Rises by Ernest Hemingway (Damage Fee: $33)
-Invisible Man by Ralph Ellison (Damage Fee: $36)
-The Scarlet Letter by Nathaniel Hawthorne (Damage Fee: $29)
+To Kill a Mockingbird by Harper Lee
+
+ID: 001
+Damage Fine: $15 for minor damage, $50 for severe damage.
+1984 by George Orwell
+
+ID: 002
+Damage Fine: $10 for minor damage, $40 for severe damage.
+The Great Gatsby by F. Scott Fitzgerald
+
+ID: 003
+Damage Fine: $12 for minor damage, $45 for severe damage.
+Pride and Prejudice by Jane Austen
+
+ID: 004
+Damage Fine: $10 for minor damage, $40 for severe damage.
+Moby Dick by Herman Melville
+
+ID: 005
+Damage Fine: $15 for minor damage, $55 for severe damage.
+The Catcher in the Rye by J.D. Salinger
+
+ID: 006
+Damage Fine: $10 for minor damage, $35 for severe damage.
+The Hobbit by J.R.R. Tolkien
+
+ID: 007
+Damage Fine: $12 for minor damage, $40 for severe damage.
+War and Peace by Leo Tolstoy
+
+ID: 008
+Damage Fine: $20 for minor damage, $60 for severe damage.
+The Brothers Karamazov by Fyodor Dostoevsky
+
+ID: 009
+Damage Fine: $18 for minor damage, $55 for severe damage.
+The Odyssey by Homer
+
+ID: 010
+Damage Fine: $12 for minor damage, $50 for severe damage.
+Jane Eyre by Charlotte Brontë
+
+ID: 011
+Damage Fine: $10 for minor damage, $40 for severe damage.
+Crime and Punishment by Fyodor Dostoevsky
+
+ID: 012
+Damage Fine: $15 for minor damage, $50 for severe damage.
+Brave New World by Aldous Huxley
+
+ID: 013
+Damage Fine: $12 for minor damage, $45 for severe damage.
+Wuthering Heights by Emily Brontë
+
+ID: 014
+Damage Fine: $10 for minor damage, $40 for severe damage.
+The Divine Comedy by Dante Alighieri
+
+ID: 015
+Damage Fine: $20 for minor damage, $60 for severe damage.
+Don Quixote by Miguel de Cervantes
+
+ID: 016
+Damage Fine: $18 for minor damage, $55 for severe damage.
+Frankenstein by Mary Shelley
+
+ID: 017
+Damage Fine: $12 for minor damage, $45 for severe damage.
+The Iliad by Homer
+
+ID: 018
+Damage Fine: $12 for minor damage, $50 for severe damage.
+Les Misérables by Victor Hugo
+
+ID: 019
+Damage Fine: $20 for minor damage, $60 for severe damage.
+Dracula by Bram Stoker
+
+ID: 020
+Damage Fine: $10 for minor damage, $40 for severe damage.
+The Count of Monte Cristo by Alexandre Dumas
+
+ID: 021
+Damage Fine: $18 for minor damage, $55 for severe damage.
+A Tale of Two Cities by Charles Dickens
+
+ID: 022
+Damage Fine: $10 for minor damage, $40 for severe damage.
+Anna Karenina by Leo Tolstoy
+
+ID: 023
+Damage Fine: $18 for minor damage, $55 for severe damage.
+The Scarlet Letter by Nathaniel Hawthorne
+
+ID: 024
+Damage Fine: $10 for minor damage, $35 for severe damage.
+Middlemarch by George Eliot
+
+ID: 025
+Damage Fine: $15 for minor damage, $50 for severe damage.
+One Hundred Years of Solitude by Gabriel García Márquez
+
+ID: 026
+Damage Fine: $20 for minor damage, $60 for severe damage.
+The Picture of Dorian Gray by Oscar Wilde
+
+ID: 027
+Damage Fine: $12 for minor damage, $45 for severe damage.
+The Adventures of Huckleberry Finn by Mark Twain
+
+ID: 028
+Damage Fine: $10 for minor damage, $40 for severe damage.
+The Road by Cormac McCarthy
+
+ID: 029
+Damage Fine: $12 for minor damage, $45 for severe damage.
+Beloved by Toni Morrison
+
+ID: 030
+Damage Fine: $15 for minor damage, $50 for severe damage.
+The Handmaid's Tale by Margaret Atwood
+
+ID: 031
+Damage Fine: $12 for minor damage, $45 for severe damage.
+The Great Alone by Kristin Hannah
+
+ID: 032
+Damage Fine: $15 for minor damage, $50 for severe damage.
+The Hunger Games by Suzanne Collins
+
+ID: 033
+Damage Fine: $10 for minor damage, $40 for severe damage.
+The Kite Runner by Khaled Hosseini
+
+ID: 034
+Damage Fine: $15 for minor damage, $50 for severe damage.
+The Alchemist by Paulo Coelho
+
+ID: 035
+Damage Fine: $10 for minor damage, $40 for severe damage.
+The Shining by Stephen King
+
+ID: 036
+Damage Fine: $12 for minor damage, $45 for severe damage.
+The Night Circus by Erin Morgenstern
+
+ID: 037
+Damage Fine: $12 for minor damage, $45 for severe damage.
+The Shadow of the Wind by Carlos Ruiz Zafón
+
+ID: 038
+Damage Fine: $15 for minor damage, $50 for severe damage.
+Dune by Frank Herbert
+
+ID: 039
+Damage Fine: $18 for minor damage, $55 for severe damage.
+The Martian by Andy Weir
+
+ID: 040
+Damage Fine: $12 for minor damage, $45 for severe damage.
+The Goldfinch by Donna Tartt
+
+ID: 041
+Damage Fine: $20 for minor damage, $60 for severe damage.
+The Girl on the Train by Paula Hawkins
+
+ID: 042
+Damage Fine: $10 for minor damage, $40 for severe damage.
+Big Little Lies by Liane Moriarty
+
+ID: 043
+Damage Fine: $12 for minor damage, $45 for severe damage.
+Gone Girl by Gillian Flynn
+
+ID: 044
+Damage Fine: $12 for minor damage, $50 for severe damage.
+The Outsiders by S.E. Hinton
+
+ID: 045
+Damage Fine: $8 for minor damage, $30 for severe damage.
+Catch-22 by Joseph Heller
+
+ID: 046
+Damage Fine: $15 for minor damage, $50 for severe damage.
+The Secret Garden by Frances Hodgson Burnett
+
+ID: 047
+Damage Fine: $10 for minor damage, $40 for severe damage.
+Little Women by Louisa May Alcott
+
+ID: 048
+Damage Fine: $12 for minor damage, $45 for severe damage.
+Franny and Zooey by J.D. Salinger
+
+ID: 049
+Damage Fine: $10 for minor damage, $40 for severe damage.
+The Bell Jar by Sylvia Plath
+
+ID: 050
+Damage Fine: $12 for minor damage, $45 for severe damage.
+The Giver by Lois Lowry
+
+ID: 051
+Damage Fine: $8 for minor damage, $35 for severe damage.
+Room by Emma Donoghue
+
+ID: 052
+Damage Fine: $12 for minor damage, $45 for severe damage.
+The Book Thief by Markus Zusak
+
+ID: 053
+Damage Fine: $12 for minor damage, $50 for severe damage.
+The Time Traveler's Wife by Audrey Niffenegger
+
+ID: 054
+Damage Fine: $15 for minor damage, $55 for severe damage.
+The Lovely Bones by Alice Sebold
+
+ID: 055
+Damage Fine: $10 for minor damage, $40 for severe damage.
+Atonement by Ian McEwan
+
+ID: 056
+Damage Fine: $12 for minor damage, $45 for severe damage.
+The Boy in the Striped Pajamas by John Boyne
+
+ID: 057
+Damage Fine: $10 for minor damage, $40 for severe damage.
+The Poisonwood Bible by Barbara Kingsolver
+
+ID: 058
+Damage Fine: $18 for minor damage, $55 for severe damage.
+Water for Elephants by Sara Gruen
+
+ID: 059
+Damage Fine: $12 for minor damage, $45 for severe damage.
+The Secret Life of Bees by Sue Monk Kidd
+
+ID: 060
+Damage Fine: $10 for minor damage, $40 for severe damage.
