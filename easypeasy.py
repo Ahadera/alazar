@@ -1,96 +1,171 @@
 import streamlit as st
+import datetime
+import logging
 
-class LibrarySystem:
+# Set up logging
+logging.basicConfig(filename='library_log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
+
+# Book class
+class Book:
+    def __init__(self, title, author, isbn, damage_fee=20):
+        self.title = title
+        self.author = author
+        self.isbn = isbn
+        self.is_available = True
+        self.damaged = False
+        self.damage_fee = damage_fee
+        self.waitlist = []
+
+    def __repr__(self):
+        status = 'Available' if self.is_available else 'Checked Out'
+        damage_status = 'Damaged' if self.damaged else 'Good Condition'
+        return f"{self.title} by {self.author} (ISBN: {self.isbn}) - {status}, {damage_status}"
+
+    def add_to_waitlist(self, member):
+        self.waitlist.append(member)
+        logging.info(f"{member.name} added to waitlist for '{self.title}'.")
+
+    def notify_waitlist(self):
+        if self.waitlist:
+            member = self.waitlist.pop(0)
+            logging.info(f"Notified {member.name} about '{self.title}' availability.")
+
+# Member class
+class Member:
+    def __init__(self, name, member_id):
+        self.name = name
+        self.member_id = member_id
+        self.borrowed_books = {}
+        self.fines = 0
+
+    def borrow_book(self, book, due_date):
+        if book.is_available:
+            book.is_available = False
+            self.borrowed_books[book] = due_date
+            logging.info(f"{self.name} borrowed '{book.title}'. Due date: {due_date}")
+        else:
+            book.add_to_waitlist(self)
+
+    def return_book(self, book, damaged=False):
+        if book not in self.borrowed_books:
+            return False
+        book.is_available = True
+        del self.borrowed_books[book]
+        if damaged:
+            book.damaged = True
+            self.fines += book.damage_fee
+            logging.info(f"{self.name} returned '{book.title}' damaged. Fine: ${book.damage_fee}")
+        book.notify_waitlist()
+        return True
+
+    def calculate_fines(self):
+        today = datetime.date.today()
+        for book, due_date in self.borrowed_books.items():
+            if today > due_date:
+                overdue_days = (today - due_date).days
+                fine = overdue_days * 1.25
+                self.fines += fine
+
+        return self.fines
+
+# Library class
+class Library:
     def __init__(self):
-           self.members = {}
-           self.checked_out_books = {}
-           self.books_dict = {
-    "1984": {"Title": "1984", "Author": "George Orwell", "Minor Damage Fine": 10, "Severe Damage Fine": 35, "Status": "Available", "Due Date": None},
-    "Moby-Dick": {"Title": "Moby-Dick", "Author": "Herman Melville", "Minor Damage Fine": 15, "Severe Damage Fine": 50, "Status": "Available", "Due Date": None},
-    "To Kill a Mockingbird": {"Title": "To Kill a Mockingbird", "Author": "Harper Lee", "Minor Damage Fine": 12, "Severe Damage Fine": 45, "Status": "Available", "Due Date": None},
-    "Pride and Prejudice": {"Title": "Pride and Prejudice", "Author": "Jane Austen", "Minor Damage Fine": 10, "Severe Damage Fine": 40, "Status": "Available", "Due Date": None},
-    "The Catcher in the Rye": {"Title": "The Catcher in the Rye", "Author": "J.D. Salinger", "Minor Damage Fine": 14, "Severe Damage Fine": 50, "Status": "Available", "Due Date": None},
-    "The Great Gatsby": {"Title": "The Great Gatsby", "Author": "F. Scott Fitzgerald", "Minor Damage Fine": 12, "Severe Damage Fine": 45, "Status": "Available", "Due Date": None},
-    "Jane Eyre": {"Title": "Jane Eyre", "Author": "Charlotte Brontë", "Minor Damage Fine": 11, "Severe Damage Fine": 42, "Status": "Available", "Due Date": None},
-    "The Lord of the Rings": {"Title": "The Lord of the Rings", "Author": "J.R.R. Tolkien", "Minor Damage Fine": 18, "Severe Damage Fine": 65, "Status": "Available", "Due Date": None},
-    "The Hobbit": {"Title": "The Hobbit", "Author": "J.R.R. Tolkien", "Minor Damage Fine": 16, "Severe Damage Fine": 60, "Status": "Available", "Due Date": None},
-    "Crime and Punishment": {"Title": "Crime and Punishment", "Author": "Fyodor Dostoevsky", "Minor Damage Fine": 20, "Severe Damage Fine": 70, "Status": "Available", "Due Date": None},
-    "War and Peace": {"Title": "War and Peace", "Author": "Leo Tolstoy", "Minor Damage Fine": 25, "Severe Damage Fine": 80, "Status": "Available", "Due Date": None},
-    "Anna Karenina": {"Title": "Anna Karenina", "Author": "Leo Tolstoy", "Minor Damage Fine": 22, "Severe Damage Fine": 75, "Status": "Available", "Due Date": None},
-    "Don Quixote": {"Title": "Don Quixote", "Author": "Miguel de Cervantes", "Minor Damage Fine": 18, "Severe Damage Fine": 60, "Status": "Available", "Due Date": None},
-    "The Brothers Karamazov": {"Title": "The Brothers Karamazov", "Author": "Fyodor Dostoevsky", "Minor Damage Fine": 21, "Severe Damage Fine": 75, "Status": "Available", "Due Date": None},
-    "The Picture of Dorian Gray": {"Title": "The Picture of Dorian Gray", "Author": "Oscar Wilde", "Minor Damage Fine": 12, "Severe Damage Fine": 45, "Status": "Available", "Due Date": None},
-    "The Odyssey": {"Title": "The Odyssey", "Author": "Homer", "Minor Damage Fine": 14, "Severe Damage Fine": 50, "Status": "Available", "Due Date": None},
-    "The Iliad": {"Title": "The Iliad", "Author": "Homer", "Minor Damage Fine": 14, "Severe Damage Fine": 50, "Status": "Available", "Due Date": None},
-    "The Divine Comedy": {"Title": "The Divine Comedy", "Author": "Dante Alighieri", "Minor Damage Fine": 20, "Severe Damage Fine": 70, "Status": "Available", "Due Date": None},
-    "Frankenstein": {"Title": "Frankenstein", "Author": "Mary Shelley", "Minor Damage Fine": 15, "Severe Damage Fine": 55, "Status": "Available", "Due Date": None},
-    "Dracula": {"Title": "Dracula", "Author": "Bram Stoker", "Minor Damage Fine": 14, "Severe Damage Fine": 50, "Status": "Available", "Due Date": None},
-    "The Adventures of Huckleberry Finn": {"Title": "The Adventures of Huckleberry Finn", "Author": "Mark Twain", "Minor Damage Fine": 12, "Severe Damage Fine": 45, "Status": "Available", "Due Date": None},
-    "Catch-22": {"Title": "Catch-22", "Author": "Joseph Heller", "Minor Damage Fine": 16, "Severe Damage Fine": 55, "Status": "Available", "Due Date": None},
-    "Slaughterhouse-Five": {"Title": "Slaughterhouse-Five", "Author": "Kurt Vonnegut", "Minor Damage Fine": 14, "Severe Damage Fine": 50, "Status": "Available", "Due Date": None},
-    "The Road": {"Title": "The Road", "Author": "Cormac McCarthy", "Minor Damage Fine": 18, "Severe Damage Fine": 65, "Status": "Available", "Due Date": None},
-    "Beloved": {"Title": "Beloved", "Author": "Toni Morrison", "Minor Damage Fine": 16, "Severe Damage Fine": 60, "Status": "Available", "Due Date": None},
-    "The Color Purple": {"Title": "The Color Purple", "Author": "Alice Walker", "Minor Damage Fine": 14, "Severe Damage Fine": 50, "Status": "Available", "Due Date": None},
-    "Of Mice and Men": {"Title": "Of Mice and Men", "Author": "John Steinbeck", "Minor Damage Fine": 12, "Severe Damage Fine": 45, "Status": "Available", "Due Date": None},
-    "East of Eden": {"Title": "East of Eden", "Author": "John Steinbeck", "Minor Damage Fine": 16, "Severe Damage Fine": 55, "Status": "Available", "Due Date": None},
-    "The Grapes of Wrath": {"Title": "The Grapes of Wrath", "Author": "John Steinbeck", "Minor Damage Fine": 18, "Severe Damage Fine": 65, "Status": "Available", "Due Date": None},
-    "The Shining": {"Title": "The Shining", "Author": "Stephen King", "Minor Damage Fine": 18, "Severe Damage Fine": 65, "Status": "Available", "Due Date": None},
-    "Carrie": {"Title": "Carrie", "Author": "Stephen King", "Minor Damage Fine": 16, "Severe Damage Fine": 60, "Status": "Available", "Due Date": None},
-    "It": {"Title": "It", "Author": "Stephen King", "Minor Damage Fine": 20, "Severe Damage Fine": 75, "Status": "Available", "Due Date": None},
-    "The Stand": {"Title": "The Stand", "Author": "Stephen King", "Minor Damage Fine": 18, "Severe Damage Fine": 65, "Status": "Available", "Due Date": None},
-    "The Dark Tower": {"Title": "The Dark Tower", "Author": "Stephen King", "Minor Damage Fine": 22, "Severe Damage Fine": 80, "Status": "Available", "Due Date": None},
-    "The Girl with the Dragon Tattoo": {"Title": "The Girl with the Dragon Tattoo", "Author": "Stieg Larsson", "Minor Damage Fine": 15, "Severe Damage Fine": 55, "Status": "Available", "Due Date": None},
-    "The Hunger Games": {"Title": "The Hunger Games", "Author": "Suzanne Collins", "Minor Damage Fine": 12, "Severe Damage Fine": 45, "Status": "Available", "Due Date": None},
-    "Divergent": {"Title": "Divergent", "Author": "Veronica Roth", "Minor Damage Fine": 12, "Severe Damage Fine": 45, "Status": "Available", "Due Date": None},
-    "The Maze Runner": {"Title": "The Maze Runner", "Author": "James Dashner", "Minor Damage Fine": 14, "Severe Damage Fine": 50, "Status": "Available", "Due Date": None},
-    "The Handmaid's Tale": {"Title": "The Handmaid's Tale", "Author": "Margaret Atwood", "Minor Damage Fine": 14, "Severe Damage Fine": 50, "Status": "Available", "Due Date": None},
-    "Brave New World": {"Title": "Brave New World", "Author": "Aldous Huxley", "Minor Damage Fine": 16, "Severe Damage Fine": 55, "Status": "Available", "Due Date": None},
-}
+        self.books = {}
+        self.members = {}
 
+    def add_book(self, title, author, isbn, damage_fee=20):
+        if isbn in self.books:
+            return False
+        new_book = Book(title, author, isbn, damage_fee)
+        self.books[isbn] = new_book
+        logging.info(f"Added book: {new_book}")
+        return True
 
-def check_out_book(self, book_title, member_name, due_date):
-        if book_title in self.books_dict:
-            book = self.books_dict[book_title]
-            if book["Status"] == "Available":
-                book["Status"] = "Checked Out"
-                book["Due Date"] = due_date
-                if member_name not in self.members:
-                    self.members[member_name] = []  # Add the member if they don't exist
-                self.members[member_name].append(book_title)  # Assign the book to the member
-                st.write(f"{book_title} has been checked out by {member_name}. Due date: {due_date}")
-            else:
-                st.write(f"{book_title} is already checked out.")
+    def register_member(self, name, member_id):
+        if member_id in self.members:
+            return False
+        new_member = Member(name, member_id)
+        self.members[member_id] = new_member
+        logging.info(f"Registered member: {new_member.name} (ID: {new_member.member_id})")
+        return True
+
+    def search_book(self, search_term):
+        return [book for book in self.books.values() if search_term.lower() in book.title.lower() or search_term.lower() in book.author.lower()]
+
+    def show_member_info(self, member_id):
+        return self.members.get(member_id, None)
+
+# Streamlit Interface
+library = Library()
+
+st.title("Library Management System")
+
+# Tabs for different actions
+tabs = st.tabs(["Add Book", "Register Member", "Search & Borrow", "Member Info"])
+
+# Add Book tab
+with tabs[0]:
+    st.subheader("Add a New Book")
+    title = st.text_input("Book Title")
+    author = st.text_input("Author")
+    isbn = st.text_input("ISBN")
+    damage_fee = st.number_input("Damage Fee", min_value=0, value=20)
+
+    if st.button("Add Book"):
+        if library.add_book(title, author, isbn, damage_fee):
+            st.success("Book added successfully!")
         else:
-            st.write(f"Book titled {book_title} not found.")
-    
-def return_book(self, book_title, member_name):
-        if member_name in self.members:
-            if book_title in self.members[member_name]:
-                book = self.books_dict[book_title]
-                book["Status"] = "Available"
-                book["Due Date"] = None
-                self.members[member_name].remove(book_title)  # Remove the book from the member
-                st.write(f"{book_title} has been returned by {member_name}.")
-            else:
-                st.write(f"{book_title} was not checked out by {member_name}.")
+            st.error("Book already exists.")
+
+# Register Member tab
+with tabs[1]:
+    st.subheader("Register a New Member")
+    name = st.text_input("Member Name")
+    member_id = st.text_input("Member ID")
+
+    if st.button("Register Member"):
+        if library.register_member(name, member_id):
+            st.success("Member registered successfully!")
         else:
-            st.write(f"Member {member_name} not found.")
-    
-def view_books(self):
-        st.write("Available Books:")
-        for title, book in self.books_dict.items():
-            if book["Status"] == "Available":
-                st.write(f"Title: {book['Title']}, Author: {book['Author']}, Minor Damage Fine: ${book['Minor Damage Fine']}, Severe Damage Fine: ${book['Severe Damage Fine']}")
+            st.error("Member ID already exists.")
 
-# Example Usage
-library = LibrarySystem()
+# Search & Borrow tab
+with tabs[2]:
+    st.subheader("Search and Borrow Books")
+    search_term = st.text_input("Search by Title or Author")
+    if st.button("Search"):
+        results = library.search_book(search_term)
+        if results:
+            st.write("Search Results:")
+            for book in results:
+                st.write(f"- {book}")
+        else:
+            st.error("No books found.")
 
-# Checking out a book
-library.check_out_book("1984", "John Doe", "2024-12-15")
-library.check_out_book("Moby-Dick", "Jane Smith", "2024-12-20")
+    isbn_to_borrow = st.text_input("Enter ISBN to Borrow")
+    member_id = st.text_input("Enter Your Member ID")
+    if st.button("Borrow Book"):
+        book = library.books.get(isbn_to_borrow, None)
+        member = library.members.get(member_id, None)
+        if book and member:
+            due_date = datetime.date.today() + datetime.timedelta(days=14)
+            member.borrow_book(book, due_date)
+            st.success(f"Book borrowed successfully! Due date: {due_date}")
+        else:
+            st.error("Invalid ISBN or Member ID.")
 
-# Returning a book
-library.return_book("1984", "John Doe")
-
-# Viewing available books
-library.view_books()
+# Member Info tab
+with tabs[3]:
+    st.subheader("View Member Info")
+    member_id = st.text_input("Enter Member ID")
+    if st.button("View Info"):
+        member = library.show_member_info(member_id)
+        if member:
+            st.write(f"**Name**: {member.name}")
+            st.write("**Borrowed Books**:")
+            for book, due_date in member.borrowed_books.items():
+                st.write(f"- '{book.title}' (Due: {due_date})")
+            st.write(f"**Fines**: ${member.calculate_fines():.2f}")
+        else:
+            st.error("Member not found.")
