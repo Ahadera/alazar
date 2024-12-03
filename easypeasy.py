@@ -98,82 +98,49 @@ class LibrarySystem:
     "90": {"Title": "The Zahir", "Author": "Paulo Coelho", "Minor Damage Fine": 14, "Severe Damage Fine": 50, "Status": "Available", "Due Date": None}
     }
 
-    def add_member(self, member_id, name):
-        if member_id not in self.members:
-            self.members[member_id] = {"Name": name, "Checked Out": []}
-            st.success(f"Member {name} added successfully.")
+def check_out_book(self, book_title, member_name, due_date):
+        if book_title in self.books_dict:
+            book = self.books_dict[book_title]
+            if book["Status"] == "Available":
+                book["Status"] = "Checked Out"
+                book["Due Date"] = due_date
+                if member_name not in self.members:
+                    self.members[member_name] = []  # Add the member if they don't exist
+                self.members[member_name].append(book_title)  # Assign the book to the member
+                st.write(f"{book_title} has been checked out by {member_name}. Due date: {due_date}")
+            else:
+                st.write(f"{book_title} is already checked out.")
         else:
-            st.warning(f"Member {name} already exists.")
-
-    def display_books(self):
-        available_books = {book_id: details["Title"] for book_id, details in self.books_dict.items() if details["Status"] == "Available"}
-        if available_books:
-            st.write("Available Books:")
-            for book_id, title in available_books.items():
-                st.write(f"{book_id}: {title}")
+            st.write(f"Book titled {book_title} not found.")
+    
+def return_book(self, book_title, member_name):
+        if member_name in self.members:
+            if book_title in self.members[member_name]:
+                book = self.books_dict[book_title]
+                book["Status"] = "Available"
+                book["Due Date"] = None
+                self.members[member_name].remove(book_title)  # Remove the book from the member
+                st.write(f"{book_title} has been returned by {member_name}.")
+            else:
+                st.write(f"{book_title} was not checked out by {member_name}.")
         else:
-            st.write("No books available currently.")
+            st.write(f"Member {member_name} not found.")
+    
+def view_books(self):
+        st.write("Available Books:")
+        for title, book in self.books_dict.items():
+            if book["Status"] == "Available":
+                st.write(f"Title: {book['Title']}, Author: {book['Author']}, Minor Damage Fine: ${book['Minor Damage Fine']}, Severe Damage Fine: ${book['Severe Damage Fine']}")
 
-    def checkout_book(self, member_id, book_id):
-        if member_id not in self.members:
-            st.warning("Member not found.")
-            return
-        if book_id not in self.books_dict or self.books_dict[book_id]["Status"] != "Available":
-            st.warning("Book is not available for checkout.")
-            return
-        self.books_dict[book_id]["Status"] = "Checked Out"
-        self.members[member_id]["Checked Out"].append(book_id)
-        self.checked_out_books[book_id] = member_id
-        st.success(f"Book {self.books_dict[book_id]['Title']} checked out successfully.")
-
-    def return_book(self, member_id, book_id):
-        if member_id not in self.members or book_id not in self.members[member_id]["Checked Out"]:
-            st.warning("Invalid return attempt.")
-            return
-        self.members[member_id]["Checked Out"].remove(book_id)
-        self.books_dict[book_id]["Status"] = "Available"
-        fine = self.calculate_fine(book_id)
-        st.success(f"Book {self.books_dict[book_id]['Title']} returned. Fine: ${fine}")
-        del self.checked_out_books[book_id]
-
-    def calculate_fine(self, book_id):
-        if book_id not in self.books_dict:
-            return 0
-        book = self.books_dict[book_id]
-        # Assume user reports minor damage for demonstration purposes
-        fine = book["Minor Damage Fine"]
-        return fine
-
-# Instantiate the library system
+# Example Usage
 library = LibrarySystem()
 
-# Streamlit UI
-st.title("Library System")
+# Checking out a book
+library.check_out_book("1984", "John Doe", "2024-12-15")
+library.check_out_book("Moby-Dick", "Jane Smith", "2024-12-20")
 
-# Add member functionality
-with st.expander("Add Member"):
-    member_id = st.text_input("Enter Member ID")
-    member_name = st.text_input("Enter Member Name")
-    if st.button("Add Member"):
-        if member_id and member_name:
-            library.add_member(member_id, member_name)
+# Returning a book
+library.return_book("1984", "John Doe")
 
-# Display available books
-with st.expander("Available Books"):
-    library.display_books()
-
-# Checkout a book functionality
-with st.expander("Checkout Book"):
-    member_id = st.text_input("Enter Member ID to Checkout Book")
-    book_id = st.text_input("Enter Book ID to Checkout")
-    if st.button("Checkout Book"):
-        if member_id and book_id:
-            library.checkout_book(member_id, book_id)
-
-# Return a book functionality
-with st.expander("Return Book"):
-    member_id = st.text_input("Enter Member ID to Return Book")
-    book_id = st.text_input("Enter Book ID to Return")
-    if st.button("Return Book"):
-        if member_id and book_id:
-            library.return_book(member_id, book_id)
+# Viewing available books
+library.view_books()
