@@ -2,7 +2,9 @@ import streamlit as st
 
 class LibrarySystem:
     def __init__(self):
-        self.books_dict = {
+           self.members = {}
+           self.checked_out_books = {}
+           self.books_dict = {
     "001": {"Title": "1984", "Author": "George Orwell", "Minor Damage Fine": 10, "Severe Damage Fine": 35, "Status": "Available", "Due Date": None},
     "002": {"Title": "Moby-Dick", "Author": "Herman Melville", "Minor Damage Fine": 15, "Severe Damage Fine": 50, "Status": "Available", "Due Date": None},
     "003": {"Title": "To Kill a Mockingbird", "Author": "Harper Lee", "Minor Damage Fine": 12, "Severe Damage Fine": 45, "Status": "Available", "Due Date": None},
@@ -79,57 +81,84 @@ class LibrarySystem:
     "074": {"Title": "Never Let Me Go", "Author": "Kazuo Ishiguro", "Minor Damage Fine": 18, "Severe Damage Fine": 65, "Status": "Available", "Due Date": None},
     "075": {"Title": "A Little Life", "Author": "Hanya Yanagihara", "Minor Damage Fine": 16, "Severe Damage Fine": 60, "Status": "Available", "Due Date": None},
 }
+    
 
-        self.members = {}
+    def add_member(self, member_id, name):
+        if member_id not in self.members:
+            self.members[member_id] = {"Name": name, "Checked Out": []}
+            st.success(f"Member {name} added successfully.")
+        else:
+            st.warning(f"Member {name} already exists.")
 
-    library_members = {}
+    def display_books(self):
+        available_books = {book_id: details["Title"] for book_id, details in self.books_dict.items() if details["Status"] == "Available"}
+        if available_books:
+            st.write("Available Books:")
+            for book_id, title in available_books.items():
+                st.write(f"{book_id}: {title}")
+        else:
+            st.write("No books available currently.")
 
-# Function to calculate fine based on the number of days overdue
-def calculate_fine(due_date, return_date, minor_damage=False, severe_damage=False):
-    overdue_days = (return_date - due_date).days
-    if overdue_days > 0:
-        fine = overdue_days * 1  # Fine for overdue days, $1 per day
-        if minor_damage:
-            fine += library_books[book_id]["Minor Damage Fine"]
-        if severe_damage:
-            fine += library_books[book_id]["Severe Damage Fine"]
+    def checkout_book(self, member_id, book_id):
+        if member_id not in self.members:
+            st.warning("Member not found.")
+            return
+        if book_id not in self.books_dict or self.books_dict[book_id]["Status"] != "Available":
+            st.warning("Book is not available for checkout.")
+            return
+        self.books_dict[book_id]["Status"] = "Checked Out"
+        self.members[member_id]["Checked Out"].append(book_id)
+        self.checked_out_books[book_id] = member_id
+        st.success(f"Book {self.books_dict[book_id]['Title']} checked out successfully.")
+
+    def return_book(self, member_id, book_id):
+        if member_id not in self.members or book_id not in self.members[member_id]["Checked Out"]:
+            st.warning("Invalid return attempt.")
+            return
+        self.members[member_id]["Checked Out"].remove(book_id)
+        self.books_dict[book_id]["Status"] = "Available"
+        fine = self.calculate_fine(book_id)
+        st.success(f"Book {self.books_dict[book_id]['Title']} returned. Fine: ${fine}")
+        del self.checked_out_books[book_id]
+
+    def calculate_fine(self, book_id):
+        if book_id not in self.books_dict:
+            return 0
+        book = self.books_dict[book_id]
+        # Assume user reports minor damage for demonstration purposes
+        fine = book["Minor Damage Fine"]
         return fine
-    return 0  # No fine if no overdue
 
-# Function to check out a book
-def checkout_book(book_id, member_id, due_date):
-    if book_id in library_books and library_books[book_id]["Status"] == "Available":
-        library_books[book_id]["Status"] = "Checked Out"
-        library_books[book_id]["Due Date"] = due_date
-        if member_id not in library_members:
-            library_members[member_id] = {"Books Checked Out": []}
-        library_members[member_id]["Books Checked Out"].append(book_id)
-        print(f"Book '{library_books[book_id]['Title']}' checked out successfully!")
-    else:
-        print(f"Book with ID {book_id} is not available for checkout.")
+# Instantiate the library system
+library = LibrarySystem()
 
-# Function to return a book
-def return_book(book_id, member_id, return_date, minor_damage=False, severe_damage=False):
-    if member_id in library_members and book_id in library_members[member_id]["Books Checked Out"]:
-        due_date = library_books[book_id]["Due Date"]
-        fine = calculate_fine(due_date, return_date, minor_damage, severe_damage)
-        library_books[book_id]["Status"] = "Available"
-        library_books[book_id]["Due Date"] = None
-        library_members[member_id]["Books Checked Out"].remove(book_id)
-        print(f"Book '{library_books[book_id]['Title']}' returned successfully.")
-        print(f"Total fine: ${fine}")
-    else:
-        print(f"Book with ID {book_id} not checked out by member {member_id}.")
+# Streamlit UI
+st.title("Library System")
 
-# Function to view available books
-def view_available_books():
-    available_books = [book for book, details in library_books.items() if details["Status"] == "Available"]
-    print("Available Books:")
-    for book_id in available_books:
-        print(f"ID: {book_id}, Title: {library_books[book_id]['Title']}")
+# Add member functionality
+with st.expander("Add Member"):
+    member_id = st.text_input("Enter Member ID")
+    member_name = st.text_input("Enter Member Name")
+    if st.button("Add Member"):
+        if member_id and member_name:
+            library.add_member(member_id, member_name)
 
-# Example usage
-checkout_book("001", "member1", datetime.date(2024, 12, 10))  # Member 1 checks out a book with a due date of 2024-12-10
-return_book("001", "member1", datetime.date(2024, 12, 15), minor_damage=True)  # Member 1 returns the book with minor damage on 2024-12-15
-view_available_books()  # View available books
+# Display available books
+with st.expander("Available Books"):
+    library.display_books()
 
+# Checkout a book functionality
+with st.expander("Checkout Book"):
+    member_id = st.text_input("Enter Member ID to Checkout Book")
+    book_id = st.text_input("Enter Book ID to Checkout")
+    if st.button("Checkout Book"):
+        if member_id and book_id:
+            library.checkout_book(member_id, book_id)
+
+# Return a book functionality
+with st.expander("Return Book"):
+    member_id = st.text_input("Enter Member ID to Return Book")
+    book_id = st.text_input("Enter Book ID to Return")
+    if st.button("Return Book"):
+        if member_id and book_id:
+            library.return_book(member_id, book_id)
