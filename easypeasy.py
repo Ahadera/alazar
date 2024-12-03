@@ -82,105 +82,54 @@ class LibrarySystem:
 
         self.members = {}
 
-    def return_book(self, book_id):
-        if book_id in self.books_dict:
-            current_status = self.books_dict[book_id].get("Status", "Unknown")
-            if current_status == "Checked Out":
-                self.books_dict[book_id]["Status"] = "Available"
-                st.write(f"Book with ID {book_id} has been returned and is now available.")
-            elif current_status == "Available":
-                st.write(f"Book with ID {book_id} is already available in the library.")
-            else:
-                st.write(f"Unexpected status '{current_status}' for Book ID {book_id}. Please check the data.")
-        else:
-            st.write(f"Book with ID {book_id} does not exist in the library collection.")
+    library_members = {}
 
-    def display_books(self):
-        for book_id, details in self.books_dict.items():
-            st.write(f"Book ID: {book_id}, Title: {details['Title']}, Author: {details['Author']}, Status: {details['Status']}")
+# Function to calculate fine based on the number of days overdue
+def calculate_fine(due_date, return_date, minor_damage=False, severe_damage=False):
+    overdue_days = (return_date - due_date).days
+    if overdue_days > 0:
+        fine = overdue_days * 1  # Fine for overdue days, $1 per day
+        if minor_damage:
+            fine += library_books[book_id]["Minor Damage Fine"]
+        if severe_damage:
+            fine += library_books[book_id]["Severe Damage Fine"]
+        return fine
+    return 0  # No fine if no overdue
 
-    def add_member(self, member_id, name):
-        if member_id not in self.members:
-            self.members[member_id] = name
-            st.write(f"Member {name} with ID {member_id} has been added.")
-        else:
-            st.write(f"Member ID {member_id} already exists.")
+# Function to check out a book
+def checkout_book(book_id, member_id, due_date):
+    if book_id in library_books and library_books[book_id]["Status"] == "Available":
+        library_books[book_id]["Status"] = "Checked Out"
+        library_books[book_id]["Due Date"] = due_date
+        if member_id not in library_members:
+            library_members[member_id] = {"Books Checked Out": []}
+        library_members[member_id]["Books Checked Out"].append(book_id)
+        print(f"Book '{library_books[book_id]['Title']}' checked out successfully!")
+    else:
+        print(f"Book with ID {book_id} is not available for checkout.")
 
-    def check_out_book(self, book_id, member_id):
-        if member_id not in self.members:
-            st.write(f"Member ID {member_id} does not exist. Please register the member first.")
-            return
+# Function to return a book
+def return_book(book_id, member_id, return_date, minor_damage=False, severe_damage=False):
+    if member_id in library_members and book_id in library_members[member_id]["Books Checked Out"]:
+        due_date = library_books[book_id]["Due Date"]
+        fine = calculate_fine(due_date, return_date, minor_damage, severe_damage)
+        library_books[book_id]["Status"] = "Available"
+        library_books[book_id]["Due Date"] = None
+        library_members[member_id]["Books Checked Out"].remove(book_id)
+        print(f"Book '{library_books[book_id]['Title']}' returned successfully.")
+        print(f"Total fine: ${fine}")
+    else:
+        print(f"Book with ID {book_id} not checked out by member {member_id}.")
 
-        if book_id in self.books_dict and self.books_dict[book_id]["Status"] == "Available":
-            self.books_dict[book_id]["Status"] = "Checked Out"
-            st.write(f"Book ID: {book_id} has been checked out by member {self.members[member_id]}.")
-        elif book_id in self.books_dict:
-            st.write(f"Book ID: {book_id} is not available for checkout.")
-        else:
-            st.write(f"Book ID: {book_id} does not exist in the library collection.")
+# Function to view available books
+def view_available_books():
+    available_books = [book for book, details in library_books.items() if details["Status"] == "Available"]
+    print("Available Books:")
+    for book_id in available_books:
+        print(f"ID: {book_id}, Title: {library_books[book_id]['Title']}")
 
-    def calculate_fine(self, book_id, damage_severity):
-        if book_id not in self.books_dict:
-            st.write(f"Book ID {book_id} does not exist in the library collection.")
-            return 0
-
-        minor_fine = self.books_dict[book_id].get("Minor Damage Fine", 0)
-        severe_fine = self.books_dict[book_id].get("Severe Damage Fine", 0)
-
-        if damage_severity == "Minor":
-            return minor_fine
-        elif damage_severity == "Severe":
-            return severe_fine
-        else:
-            return 0
-
-    def check_due_date(self, book_id):
-        if book_id not in self.books_dict:
-            st.write(f"Book ID {book_id} does not exist in the library collection.")
-            return
-
-        due_date = self.books_dict[book_id].get("Due Date")
-        if due_date:
-            st.write(f"Book ID: {book_id} is due on {due_date}.")
-        else:
-            st.write(f"Book ID: {book_id} does not have a due date.")
-
-# Streamlit Interface Example
-st.title("Library Management System")
-
-library = LibrarySystem()
-
-action = st.sidebar.selectbox("Select Action", ["Display Books", "Add Member", "Check Out Book", "Return Book", "Check Due Date", "Calculate Fine"])
-
-if action == "Display Books":
-    library.display_books()
-
-elif action == "Add Member":
-    member_id = st.number_input("Enter Member ID", min_value=1, step=1)
-    name = st.text_input("Enter Member Name")
-    if st.button("Add Member"):
-        library.add_member(member_id, name)
-
-elif action == "Check Out Book":
-    book_id = st.number_input("Enter Book ID to Check Out", min_value=1, step=1)
-    member_id = st.number_input("Enter Member ID", min_value=1, step=1)
-    if st.button("Check Out Book"):
-        library.check_out_book(book_id, member_id)
-
-elif action == "Return Book":
-    book_id = st.number_input("Enter Book ID to Return", min_value=1, step=1)
-    if st.button("Return Book"):
-        library.return_book(book_id)
-
-elif action == "Check Due Date":
-    book_id = st.number_input("Enter Book ID to Check Due Date", min_value=1, step=1)
-    if st.button("Check Due Date"):
-        library.check_due_date(book_id)
-
-elif action == "Calculate Fine":
-    book_id = st.number_input("Enter Book ID for Fine Calculation", min_value=1, step=1)
-    damage_severity = st.selectbox("Select Damage Severity", ["Minor", "Severe"])
-    if st.button("Calculate Fine"):
-        fine = library.calculate_fine(book_id, damage_severity)
-        st.write(f"The fine for Book ID {book_id} is ${fine}.")
+# Example usage
+checkout_book("001", "member1", datetime.date(2024, 12, 10))  # Member 1 checks out a book with a due date of 2024-12-10
+return_book("001", "member1", datetime.date(2024, 12, 15), minor_damage=True)  # Member 1 returns the book with minor damage on 2024-12-15
+view_available_books()  # View available books
 
